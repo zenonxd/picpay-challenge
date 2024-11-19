@@ -1,7 +1,7 @@
-package com.moreira.picpaychallenge.application.domain.repositories;
+package com.moreira.picpaychallenge.domain.repositories;
 
-import com.moreira.picpaychallenge.application.domain.entities.Transfer;
-import com.moreira.picpaychallenge.application.domain.entities.User;
+import com.moreira.picpaychallenge.domain.entities.Transfer;
+import com.moreira.picpaychallenge.domain.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

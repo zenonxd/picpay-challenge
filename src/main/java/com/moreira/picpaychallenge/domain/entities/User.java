@@ -1,6 +1,6 @@
-package com.moreira.picpaychallenge.application.domain.entities;
+package com.moreira.picpaychallenge.domain.entities;
 
-import com.moreira.picpaychallenge.application.domain.enums.UserType;
+import com.moreira.picpaychallenge.domain.enums.UserType;
 import jakarta.persistence.*;
 import lombok.*;
 
