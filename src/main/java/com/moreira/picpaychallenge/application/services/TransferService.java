@@ -21,14 +21,13 @@ public class TransferService {
 
     @Autowired
     private UserService userService;
-    @Autowired
-    private EmailNotificationService emailNotificationService;
+
     @Autowired
     private NotificationService notificationService;
 
     //transacional para caso exista algum erro, o saldo volte para ambas as contas
     @Transactional
-    public void transfer(TransactionDTO transaction) {
+    public TransactionDTO transfer(TransactionDTO transaction) {
 
         User sender = userService.findUserById(transaction.senderId());
 
@@ -60,6 +59,11 @@ public class TransferService {
 
         notificationService.sendTransferNotification(sender, receiver, transaction.value());
 
+        return new TransactionDTO(
+                transaction.value(),
+                sender.getId(),
+                receiver.getId()
+        );
     }
 
 

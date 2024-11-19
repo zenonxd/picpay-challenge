@@ -22,7 +22,7 @@ public class User {
 
     @Column(unique = true, nullable = false)
     //cpf ou cnpj
-    private String identificationNumber;
+    private String document;
 
     @Column(unique = true, nullable = false)
     private String email;
