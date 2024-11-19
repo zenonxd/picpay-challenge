@@ -1,10 +1,10 @@
-package com.moreira.picpaychallenge.application.domain.entities;
+package com.moreira.picpaychallenge.domain.entities;
 
-import com.moreira.picpaychallenge.application.domain.enums.UserType;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tb_transer")
@@ -20,6 +20,8 @@ public class Transfer {
     private Long id;
 
     private BigDecimal amount;
+
+    private LocalDateTime timestamp;
 
     @ManyToOne
     @JoinColumn(name = "sender_id")

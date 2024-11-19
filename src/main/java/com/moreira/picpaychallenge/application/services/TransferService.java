@@ -1,58 +1,65 @@
 package com.moreira.picpaychallenge.application.services;
 
-import com.moreira.picpaychallenge.application.domain.entities.Transfer;
-import com.moreira.picpaychallenge.application.domain.entities.User;
-import com.moreira.picpaychallenge.application.domain.enums.UserType;
-import com.moreira.picpaychallenge.application.domain.repositories.TransferRepository;
-import com.moreira.picpaychallenge.application.domain.repositories.UserRepository;
+import com.moreira.picpaychallenge.application.dto.TransactionDTO;
+import com.moreira.picpaychallenge.domain.entities.Transfer;
+import com.moreira.picpaychallenge.domain.entities.User;
+import com.moreira.picpaychallenge.domain.repositories.TransferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 public class TransferService {
 
     @Autowired
+    private TransferAuthorizationService transferAuthorizationService;
+
+    @Autowired
     private TransferRepository transferRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
+    @Autowired
+    private EmailNotificationService emailNotificationService;
+    @Autowired
+    private NotificationService notificationService;
 
     //transacional para caso exista algum erro, o saldo volte para ambas as contas
     @Transactional
-    public void checkTransfer(Long senderId, Long receiverId, BigDecimal amount) {
-        //getting sender info
-        User sender = userRepository.findById(senderId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public void transfer(TransactionDTO transaction) {
 
-        if (sender.getUserType() == UserType.MERCHANT) {
-            throw new IllegalArgumentException("Merchants can't make any transfers.");
+        User sender = userService.findUserById(transaction.senderId());
+
+        User receiver = userService.findUserById(transaction.receiverId());
+
+        userService.validateTransaction(sender, transaction.value());
+
+        boolean isAuthorized = transferAuthorizationService.authorizeTransfer(sender.getId(), receiver.getId(), transaction.value());
+        if (!isAuthorized) {
+            throw new RuntimeException("Transfer authorization failed.");
         }
-
-        if (sender.getBalance().compareTo(amount) < 0) {
-            throw new IllegalArgumentException("Insufficient funds.");
-        }
-
-        //getting receiver info
-        User receiver = userRepository.findById(receiverId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
 
         //creating the transfer and setting data
         Transfer transfer = new Transfer();
         transfer.setSender(sender);
         transfer.setReceiver(receiver);
-        transfer.setAmount(amount);
+        transfer.setAmount(transaction.value());
+        transfer.setTimestamp(LocalDateTime.now());
+
 
         //setting user's new balance
-        receiver.setBalance(receiver.getBalance().add(amount));
-        sender.setBalance(sender.getBalance().subtract(amount));
+        sender.setBalance(sender.getBalance().subtract(transaction.value()));
+        receiver.setBalance(receiver.getBalance().add(transaction.value()));
 
         //saving the new balance on the database
         transferRepository.save(transfer);
-        userRepository.save(receiver);
-        userRepository.save(sender);
+        userService.saveUser(receiver);
+        userService.saveUser(sender);
+
+        notificationService.sendTransferNotification(sender, receiver, transaction.value());
+
     }
 
 
