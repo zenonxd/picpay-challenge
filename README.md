@@ -84,3 +84,26 @@ Aptidões para criar e manter aplicações de alta qualidade:
 7. [ ] Boas habilidades na aplicação do conhecimento do negócio no software
 8. [ ] Implementação margeada por ferramentas de qualidade (análise estática, PHPMD, PHPStan, PHP-CS-Fixer etc)
 9. [ ] Noções de PHP assíncrono
+
+# Estrutura pacote
+
+```text
+com.moreira.picpaychallenge
+├── application        # Regras de negócio específicas de casos de uso
+│   ├── dto            # Objetos de transferência de dados
+│   ├── services       # Implementações dos casos de uso
+│   └── mappers        # Conversores entre entidades e DTOs
+├── domain             # Camada de domínio (regra de negócio essencial)
+│   ├── entities       # Entidades (modelos de negócio)
+│   ├── enums          # Enumerações utilizadas pelo domínio
+│   ├── exceptions     # Exceções de domínio
+│   └── repositories   # Interfaces para acesso a dados
+├── infrastructure     # Camada de infraestrutura (detalhes técnicos)
+│   ├── database       # Implementações de repositórios (ex: JPA, MongoDB)
+│   ├── configuration  # Configurações (Beans, Security, etc.)
+│   └── clients        # Integrações com APIs externas
+└── presentation       # Camada de apresentação (entrada/saída)
+    ├── controllers    # Endpoints REST
+    ├── handlers       # Tratamento de erros e exceções
+    └── responses      # Objetos de resposta específicos
+```
