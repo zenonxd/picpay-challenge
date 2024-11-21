@@ -38,7 +38,6 @@ public class NotificationService {
 
     private void sendMockNotification(User sender, User receiver, BigDecimal amount) {
         String url = apiBaseUrl + "/api/v1/notify";
-
         //criando corpo da requisição
         //inicialmente será Map e será convertido para JSON pelo RestTemplate
                                         //"Map.of" cria um mapa imutável
@@ -47,8 +46,8 @@ public class NotificationService {
         //resposta do JSON
         Map<String, Object> notificationData = Map.of(
                 "status", "success",
-                "data", Map.of("message", "Transferência de R$ " + amount + " de " + sender.getFullName()
-                + " para " + receiver.getFullName() + " concluída com sucesso.")
+                "data", Map.of("message", "Transferência de R$ " + amount + " de " + sender.getFirstName()
+                + " para " + receiver.getFirstName() + " concluída com sucesso.")
         );
 
         //config cabeçalho HTTP
@@ -75,17 +74,21 @@ public class NotificationService {
     public void sendNotificationEmail(User sender, User receiver, BigDecimal amount) {
         //email para remetente
         SimpleMailMessage senderMessage = new SimpleMailMessage();
+        senderMessage.setFrom(fromEmail);
         senderMessage.setTo(sender.getEmail());
-        senderMessage.setSubject("Transferência concluída.");
-        senderMessage.setText("Olá " + sender.getFullName() + ", você enviou R$ " + amount + " para " + receiver.getFullName());
+        senderMessage.setSubject("Transferência de envio concluída.");
+        senderMessage.setText("Olá " + sender.getFirstName() + ", você enviou R$ " + amount + " para " + receiver.getFirstName() +
+                ". Seu saldo atual é: " + sender.getBalance());
         mailSender.send(senderMessage);
 
         //email para destinatário
 
         SimpleMailMessage receiverMessage = new SimpleMailMessage();
-        senderMessage.setTo(receiver.getEmail());
-        senderMessage.setSubject("Transferência recebida.");
-        senderMessage.setText("Olá " + receiver.getFullName() + ", você recebeu R$ " + amount + " de " + sender.getFullName());
+        receiverMessage.setFrom(fromEmail);
+        receiverMessage.setTo(receiver.getEmail());
+        receiverMessage.setSubject("Transferência recebida.");
+        receiverMessage.setText("Olá " + receiver.getFirstName() + ", você recebeu R$ " + amount + " de " + sender.getFirstName() +
+                ". Seu saldo atual é: " + receiver.getBalance());
         mailSender.send(receiverMessage);
     }
 }

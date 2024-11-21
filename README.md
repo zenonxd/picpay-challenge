@@ -360,7 +360,5 @@ Se transformará nisso ⬇️
 ```
 
 
-
-
 # Endpoint
 

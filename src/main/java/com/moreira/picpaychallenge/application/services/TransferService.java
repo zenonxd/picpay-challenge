@@ -1,8 +1,10 @@
 package com.moreira.picpaychallenge.application.services;
 
-import com.moreira.picpaychallenge.application.dto.TransactionDTO;
+import com.moreira.picpaychallenge.application.dto.TransferRequestDTO;
+import com.moreira.picpaychallenge.application.dto.TransferResponseDTO;
 import com.moreira.picpaychallenge.domain.entities.Transfer;
 import com.moreira.picpaychallenge.domain.entities.User;
+import com.moreira.picpaychallenge.domain.exceptions.UnauthorizedTransactionException;
 import com.moreira.picpaychallenge.domain.repositories.TransferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,17 +29,19 @@ public class TransferService {
 
     //transacional para caso exista algum erro, o saldo volte para ambas as contas
     @Transactional
-    public TransactionDTO transfer(TransactionDTO transaction) {
+    public TransferResponseDTO transfer(TransferRequestDTO transaction) {
 
         User sender = userService.findUserById(transaction.senderId());
 
         User receiver = userService.findUserById(transaction.receiverId());
 
+        //checks if sender is merchant or sender balance is less than the value
+        //he wants to send
         userService.validateTransaction(sender, transaction.value());
 
         boolean isAuthorized = transferAuthorizationService.authorizeTransfer(sender.getId(), receiver.getId(), transaction.value());
         if (!isAuthorized) {
-            throw new RuntimeException("Transfer authorization failed.");
+            throw new UnauthorizedTransactionException("Transfer authorization failed.");
         }
 
         //creating the transfer and setting data
@@ -59,8 +63,10 @@ public class TransferService {
 
         notificationService.sendTransferNotification(sender, receiver, transaction.value());
 
-        return new TransactionDTO(
+        return new TransferResponseDTO(
+                transfer.getId(),
                 transaction.value(),
+                transfer.getTimestamp(),
                 sender.getId(),
                 receiver.getId()
         );

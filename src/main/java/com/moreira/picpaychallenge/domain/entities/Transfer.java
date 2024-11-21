@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tb_transer")
+@Table(name = "tb_transfer")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface TransferRepository extends JpaRepository<Transfer, Long> {
 
-    Optional<User> findUserByEmail(String email);
+    
 }
