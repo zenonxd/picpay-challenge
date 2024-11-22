@@ -71,6 +71,15 @@ public class UserService {
         if (userRequestDTO.password().length() < 6) {
             throw new InvalidPasswordException("Password must be at least 6 characters.");
         }
+
+        if (userRequestDTO.balance().compareTo(BigDecimal.ZERO) < 0) {
+            throw new InsufficientBalanceException("Balance must be greater than zero.");
+        }
+
+        if (userRequestDTO.userType() != UserType.MERCHANT
+                && userRequestDTO.userType() != UserType.COMMON) {
+            throw new UserTypeException("UserType is mandatory.");
+        }
     }
 
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
